@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "settings"
+version = "0.1.0"
+description = "🐘 Un bot qui annonce le calendrier révolutionnaire français 🐘"
+authors = ["Tom Ritchford <tom@swirly.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mastodon-py = "*"
+repcal = "*"
+
+[tool.mypy]
+strict = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
