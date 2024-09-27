@@ -1,17 +1,23 @@
-from functools import cache
 from mastodon import Mastodon
-import subprocess
-import time
+from repcal import RepublicanDate, DecimalTime
+from datetime import datetime
+import os
 import traceback
 
-ENABLE_SEND = True
-KWARGS = {'text': True, 'stdout': subprocess.PIPE}
-MAX_LEN = 500
+IS_HOURLY = 'HOURLY' in os.environ
+
+ENABLE_SEND = not True
 ACCESS_TOKEN = open('access-token.txt').read().strip()
 BASE_URL = 'https://botsin.space/'
-DELAY = 3601
+
+HOUR_DELAY = 3601
+DAY_DELAY = 24 * 3600 + 11
+DELAY = HOUR_DELAY if IS_HOURLY else DAY_DELAY
+MAX_LEN = 500
+
 TAGS = """
-#humor #unix #usr #games #fortune"""
+
+#France #revolution #calendar #calendrier"""
 MSG_LEN = MAX_LEN - len(TAGS)
 
 
@@ -22,20 +28,21 @@ def mastodon():
     )
 
 
-def get_fortune():
-    while len(f := subprocess.run('fortune', **KWARGS).stdout) > MSG_LEN:
-        print('...Too long!', len(f))
-
-    return f
+def heure():
+    n = datetime.now()
+    rd = RepublicanDate.from_gregorian(n.date())
+    dt = DecimalTime.from_standard_time(n.time())
+    t = dt.get_formatter().format('%Hʰ %Mᵐ %Sˢ')
+    return f'\n{dt}\n{t}'
 
 
 def main():
     while True:
-        f = get_fortune()
-        print('\n' + f + TAGS)
+        h = heure()
+        print(h)
         try:
             if ENABLE_SEND:
-                mastodon().status_post(f + TAGS)
+                mastodon().status_post(h + TAGS)
         except Exception:
             traceback.print_exc()
         time.sleep(DELAY)
